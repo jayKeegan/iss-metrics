@@ -23,11 +23,17 @@ export function setupPositionTracking(config: Config, registry: Registry) {
         help: 'ISS current longitude',
         registers: [registry]
     });
+    const positionAltitude = new Gauge({
+        name: `${config.metricsPrefix}altitude`,
+        help: 'ISS current altitude',
+        registers: [registry]
+    });
 
     const loadPosition = positionLoader(
         config.positionApiUrl,
         positionLatitude,
-        positionLongitude
+        positionLongitude,
+        positionAltitude,
     );
 
     schedule(
@@ -50,15 +56,23 @@ export function setupPositionTracking(config: Config, registry: Registry) {
  * @param latitudeMetric Latitude coordinate metric
  * @param longitudeMetric Longitude coordinate metric
  */
-function positionLoader(url: string, latitudeMetric: Gauge, longitudeMetric: Gauge) {
+function positionLoader(url: string, latitudeMetric: Gauge, longitudeMetric: Gauge, altitudeMetric: Gauge) {
     return async function loadPosition(signal?: AbortSignal) {
         let response: Response | undefined;
         let data: {
-            iss_position: {
-                latitude: number;
-                longitude: number;
-            }
-            message: string;
+            name: string;
+            id: number;
+            latitude: number;
+            longitude: number;
+            altitude: number;
+            velocity: number;
+            visibility: string;
+            footprint: number;
+            timestamp: number;
+            daynum: number;
+            solar_lat: number;
+            solar_lon: number;
+            units: string;
         } | undefined;
 
         try {
@@ -83,7 +97,7 @@ function positionLoader(url: string, latitudeMetric: Gauge, longitudeMetric: Gau
             return;
         }
 
-        if (!data || !data.iss_position || data.message !== 'success') {
+        if (!data || !data.altitude || !data.latitude || !data.longitude) {
             logError(
                 'Failed to parse ISS position data: Unexpected payload',
                 {data}
@@ -92,8 +106,9 @@ function positionLoader(url: string, latitudeMetric: Gauge, longitudeMetric: Gau
             return;
         }
 
-        const {latitude, longitude} = data.iss_position || {};
+        const {latitude, longitude, altitude} = data || {};
         latitudeMetric.set(Number(latitude));
         longitudeMetric.set(Number(longitude));
+        altitudeMetric.set(Number(altitude));
     }
 }

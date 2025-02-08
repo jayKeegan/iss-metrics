@@ -38,7 +38,7 @@ export function getConfig(environment: typeof env): Config {
         metricsPrefix: (environment.METRICS_PREFIX || 'iss').replace(/_$/, '') + '_',
         nodeMetrics: environment.NODE_METRICS !== 'false',
         nodeMetricsPrefix: (environment.NODE_METRICS_PREFIX || 'node').replace(/_$/, '') + '_',
-        positionApiUrl: environment.POSITION_API_URL || 'http://api.open-notify.org/iss-now.json',
+        positionApiUrl: environment.POSITION_API_URL || 'https://api.wheretheiss.at/v1/satellites/25544',
         positionUpdateFrequency: Number(environment.POSITION_UPDATE_FREQUENCY || 2_000),
         statusEndpoint: environment.STATUS_ENDPOINT || '/status',
         subscriptionAdapter: environment.SUBSCRIPTION_ADAPTER || 'ISSLIVE',

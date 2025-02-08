@@ -3884,5 +3884,12 @@
             "1": "Captive",
             "2": "Captured"
         }
+    },
+    {
+        "name": "ALTITUDE",
+        "category": "TOPO",
+        "description": "Altitude of the ISS",
+        "unit": "KM",
+        "format": "{0:f2}"
     }
 ]
